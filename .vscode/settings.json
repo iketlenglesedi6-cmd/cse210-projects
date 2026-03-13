@@ -1,0 +1,11 @@
+{
+  "editor.codeLens": false,
+  "csharp.referencesCodeLens.enabled": false,
+  "dotnet.referencesCodeLens.enabled": false,
+  "csharp.enableCodeLens": false,
+  "csharp.codeLens.enabled": false,
+  "dotnet.codeLens.enable": false,
+  "[csharp]": {
+    "editor.codeLens": false
+  }
+}
