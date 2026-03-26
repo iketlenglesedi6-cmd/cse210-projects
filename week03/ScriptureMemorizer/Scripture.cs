@@ -63,24 +63,25 @@ public class Scripture
             return;
         }
 
-        int attempts = 0;
-        int hidden = 0;
-
-        while (hidden < count && attempts < _words.Count * 4)
+        List<int> candidates = new List<int>();
+        for (int i = 0; i < _words.Count; i++)
         {
-            int index = rng.Next(_words.Count);
-            Word word = _words[index];
-
-            if (!onlyUnhidden || !word.IsHidden())
+            if (!onlyUnhidden || !_words[i].IsHidden())
             {
-                if (!word.IsHidden())
+                if (!_words[i].IsHidden())
                 {
-                    word.Hide();
-                    hidden++;
+                    candidates.Add(i);
                 }
             }
+        }
 
-            attempts++;
+        int toHide = Math.Min(count, candidates.Count);
+        for (int i = 0; i < toHide; i++)
+        {
+            int pick = rng.Next(candidates.Count);
+            int index = candidates[pick];
+            _words[index].Hide();
+            candidates.RemoveAt(pick);
         }
     }
 }

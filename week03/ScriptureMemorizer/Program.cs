@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 class Program
 {
@@ -9,6 +10,7 @@ class Program
         // Creativity: load scriptures from a file (with a safe fallback library),
         // randomly select one, and only hide words that are still visible.
         // Creativity: let the user pick a difficulty that controls how many words hide per step.
+        // Creativity: optional auto-hide mode that hides words every few seconds.
         List<Scripture> library = LoadLibraryFromFile("scripture-library.txt");
         if (library.Count == 0)
         {
@@ -37,6 +39,10 @@ class Program
             }
         }
 
+        Console.Write("Mode (auto/manual). Press Enter for manual: ");
+        string mode = Console.ReadLine();
+        bool autoHide = !string.IsNullOrWhiteSpace(mode) && mode.Trim().ToLower().StartsWith("a");
+
         while (true)
         {
             Console.Clear();
@@ -48,13 +54,44 @@ class Program
                 break;
             }
 
-            Console.Write("Press Enter to hide words or type quit: ");
-            string input = Console.ReadLine();
-
-            if (!string.IsNullOrWhiteSpace(input) &&
-                input.Trim().Equals("quit", StringComparison.OrdinalIgnoreCase))
+            if (!autoHide)
             {
-                break;
+                Console.Write("Press Enter to hide words, type auto to switch, or type quit: ");
+                string input = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(input))
+                {
+                    string trimmed = input.Trim();
+                    if (trimmed.Equals("quit", StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    if (trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase))
+                    {
+                        autoHide = true;
+                        continue;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Auto mode: hiding every 2 seconds (press Q to quit).");
+                int waitedMs = 0;
+                while (waitedMs < 2000)
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+                        if (key.Key == ConsoleKey.Q)
+                        {
+                            return;
+                        }
+                    }
+
+                    Thread.Sleep(100);
+                    waitedMs += 100;
+                }
             }
 
             int remaining = scripture.GetUnhiddenCount();
